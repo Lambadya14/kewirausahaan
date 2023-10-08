@@ -5,7 +5,6 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { BsArrowRight } from "react-icons/bs";
 import { Button, Container, Form } from "react-bootstrap";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 
@@ -45,19 +44,17 @@ function Register() {
       });
 
       // Add user data to Firestore
-      const userDocRef = await addDoc(collection(db, "users"), {
-        name: value.name,
-        email: value.email,
-        roleAs: "user",
-      });
+      // const userDocRef = await addDoc(collection(db, "users"), {
+      //   name: value.name,
+      //   email: value.email,
+      //   roleAs: "user",
+      // });
 
       navigate("/");
-      console.log("Berhasil Register");
     } catch (error) {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorCode, errorMessage);
-      console.log("Gagal Register");
     }
 
     if (!value.name || !value.email || !value.password) {

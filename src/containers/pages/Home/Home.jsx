@@ -24,8 +24,6 @@ function Home() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [getUsers, setGetUsers] = useState([]);
-  console.log(getUsers);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -39,10 +37,6 @@ function Home() {
       try {
         const dbVal = await getDocs(value);
         setVal(dbVal.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-        const userRole = await getDocs(users);
-        setGetUsers(
-          userRole.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-        );
       } catch (error) {
         console.error("Error fetching data from Firebase:", error);
       }
