@@ -6,8 +6,6 @@ import { Button, Container, Form, Modal } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { MdOutlineContentCopy } from "react-icons/md";
-import { AiOutlineClose } from "react-icons/ai";
-import { Link } from "react-router-dom";
 
 function HistoryUser() {
   const [val, setVal] = useState([]);
@@ -80,9 +78,6 @@ function HistoryUser() {
     }
   };
 
-  const handleWhatsAppClick = () => {
-    window.open(`https://wa.me/+6281248662381`, "_blank");
-  };
   return (
     <>
       <Navbar />
@@ -102,7 +97,7 @@ function HistoryUser() {
             </b>
           </span>
         </h5>
-        <Button variant="secondary" onClick={handleWhatsAppClick}>Contact Admin: Salsa</Button>
+
         <div>
           {Object.entries(groupOrdersByTimestamp(val))
             .sort((a, b) => b[0] - a[0])
@@ -124,6 +119,23 @@ function HistoryUser() {
                     variant="danger"
                   >
                     Batalkan Pesanan
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      const openWhatsApp = () => {
+                        const message = `Halo admin, ini kode pemesanan saya:\n${orders[0].codePesanan}`;
+                        // const phoneNumber = "+6281248662381"; // Replace with the recipient's phone number
+                        const phoneNumber = "+6282113066012"; // Replace with the recipient's phone number
+                        const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+                          message
+                        )}`;
+                        window.open(whatsappURL, "_blank");
+                      };
+                      openWhatsApp();
+                    }}
+                  >
+                    Contact Admin: Salsa
                   </Button>
                 </div>
                 <div>

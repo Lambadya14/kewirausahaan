@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { database } from "../../../config/firebase";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
-import {
-  Button,
-  Container,
-  Form,
-  FormCheck,
-  Modal,
-  Table,
-} from "react-bootstrap";
+import { Button, Container, Form, Modal, Table } from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 
 function HistoryAdmin() {
@@ -17,10 +10,8 @@ function HistoryAdmin() {
   const [kodeFilter, setKodeFilter] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showEditKeterangan, setShowEditKeterangan] = useState(false);
-  const [showStruk, setShowStruk] = useState(false);
   const [confirmationInput, setConfirmationInput] = useState("");
 
-  const handleCloseStruk = () => setShowStruk(false);
   const handleCloseEditKeterangan = () => setShowEditKeterangan(false);
   const handleShowEditKeterangan = (order) => {
     setSelectedOrder(order);
@@ -67,7 +58,6 @@ function HistoryAdmin() {
       (order) => order.codePesanan === orderCode
     );
     setSelectedOrder(selectedOrder);
-    setShowStruk(true);
   };
 
   const updateOrderStatus = async () => {
