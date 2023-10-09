@@ -72,7 +72,10 @@ function Navigasi() {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary">
+    <Navbar
+      style={{ backgroundColor: "#FF9853", borderColor: "#FF9853" }}
+      expand="lg"
+    >
       <Container fluid>
         <Navbar.Brand as={Link} to="/">
           CSS: Crispy, Sweet & Sip
@@ -104,7 +107,7 @@ function Navigasi() {
               <Button
                 onClick={handleSignOut}
                 variant="danger"
-                className="d-flex align-items-center"
+                className="d-flex align-items-center "
               >
                 <MdOutlineLogout style={{ fontSize: "1em" }} />{" "}
                 <div>Logout</div>

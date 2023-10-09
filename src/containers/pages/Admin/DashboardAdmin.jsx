@@ -64,6 +64,7 @@ function DashboardAdmin() {
     setImageUpload(null);
 
     const namaImage = `${v4()}`;
+    const idMenu = `${v4()}`;
     const imageRef = ref(storage, `images/${namaImage}`);
     await uploadBytes(imageRef, imageUpload);
 
@@ -76,6 +77,7 @@ function DashboardAdmin() {
       kuantitas: kuantitas,
       fotoMenu: imageURL,
       namaIMG: namaImage,
+      idMenu: idMenu,
     });
   };
 

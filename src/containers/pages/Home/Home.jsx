@@ -181,14 +181,6 @@ function Home() {
                   ? "d-grid justify-content-between bg-body mb-3"
                   : "d-flex justify-content-between bg-body mb-3"
               }
-              // style={{
-              //   borderRadius: "16px",
-              //   backgroundImage: `url(${values.fotoMenu})`,
-              //   backgroundSize: "cover",
-              //   backgroundPosition: "center",
-              //   WebkitBackdropFilter: "blur(3px)", // Apply the blur to the background
-              //   backdropFilter: "blur(3px", // Apply the blur to the background for most modern browsers
-              // }}
               style={{
                 borderRadius: "16px",
 
@@ -213,7 +205,11 @@ function Home() {
                   <p style={{ color: "white" }}>
                     {formatToIDR(values.hargaMenu)}
                   </p>
-                  <p style={{ color: "white" }}>{values.kuantitas}</p>
+                  {values.kuantitas ? (
+                    <p style={{ color: "white" }}>Tersedia</p>
+                  ) : (
+                    <p style={{ color: "white" }}>Stok Habis</p>
+                  )}
                 </div>
               </div>
 
@@ -226,6 +222,8 @@ function Home() {
                     borderBottomLeftRadius: "0px",
                     borderTopRightRadius: "0px",
                     borderTopLeftRadius: "15px",
+                    backgroundColor: "#FF9853",
+                    borderColor: "#FF9853",
                   }}
                 >
                   <HiOutlineMinus style={{ fontSize: "1.5rem" }} />
@@ -259,6 +257,8 @@ function Home() {
                     borderBottomLeftRadius: "0px",
                     borderTopRightRadius: "0px",
                     borderTopLeftRadius: "0px",
+                    backgroundColor: "#FF9853",
+                    borderColor: "#FF9853",
                   }}
                 >
                   <HiOutlinePlus style={{ fontSize: "1.5rem" }} />
@@ -320,6 +320,7 @@ function Home() {
           className="rounded-0"
           onClick={handleShow}
           disabled={totalBarang ? false : true}
+          style={{ backgroundColor: "#FF9853", borderColor: "#FF9853" }}
         >
           Checkout
         </Button>

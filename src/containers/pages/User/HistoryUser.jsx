@@ -7,6 +7,7 @@ import { getAuth } from "firebase/auth";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { MdOutlineContentCopy } from "react-icons/md";
 import { AiOutlineClose } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 function HistoryUser() {
   const [val, setVal] = useState([]);
@@ -79,12 +80,29 @@ function HistoryUser() {
     }
   };
 
+  const handleWhatsAppClick = () => {
+    window.open(`https://wa.me/+6281248662381`, "_blank");
+  };
   return (
     <>
       <Navbar />
       <Container>
         <h1>History CSS</h1>
-
+        <h3>
+          <span style={{ color: "#dc3545" }}>
+            <b>Catatan! </b>
+          </span>
+        </h3>
+        <h5>
+          <span style={{ color: "#dc3545" }}>
+            <b>
+              Setelah melakukan pemesanan, diharapkan untuk melaporkan Kode
+              Pemesanan dan Bukti Transfer <br />
+              ke Admin agar menu yang dipesan akan segera diproses&nbsp;
+            </b>
+          </span>
+        </h5>
+        <Button variant="secondary" onClick={handleWhatsAppClick}>Contact Admin: Salsa</Button>
         <div>
           {Object.entries(groupOrdersByTimestamp(val))
             .sort((a, b) => b[0] - a[0])
