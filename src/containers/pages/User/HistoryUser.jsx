@@ -125,8 +125,7 @@ function HistoryUser() {
                     onClick={() => {
                       const openWhatsApp = () => {
                         const message = `Halo admin, ini kode pemesanan saya:\n${orders[0].codePesanan}`;
-                        // const phoneNumber = "+6281248662381"; // Replace with the recipient's phone number
-                        const phoneNumber = "+6282113066012"; // Replace with the recipient's phone number
+                        const phoneNumber = process.env.REACT_APP_phoneNumber; // Replace with the recipient's phone number
                         const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
                           message
                         )}`;
