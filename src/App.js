@@ -48,14 +48,6 @@ function App() {
             </Protected>
           }
         />
-        {/* <Route
-          path="/profile"
-          element={
-            <Protected>
-              <Profile />
-            </Protected>
-          }
-        /> */}
       </Routes>
     </Router>
   );

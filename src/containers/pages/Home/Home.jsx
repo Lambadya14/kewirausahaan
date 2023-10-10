@@ -10,9 +10,10 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { database } from "../../../config/firebase";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { v4 } from "uuid";
 import { HiOutlineMinus, HiOutlinePlus } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [val, setVal] = useState([]);
@@ -24,12 +25,12 @@ function Home() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const navigate = useNavigate();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const value = collection(database, "daftarMenu");
-  const users = collection(database, "users");
   const auth = getAuth();
 
   useEffect(() => {
@@ -93,6 +94,12 @@ function Home() {
   };
 
   const handleCheckout = async () => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        return navigate("/login");
+      }
+    });
     const handleButtonClick = () => {
       // Disable the button
       setIsButtonDisabled(true);
