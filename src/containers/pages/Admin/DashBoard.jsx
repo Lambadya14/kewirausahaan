@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Navigasi from "../../../components/atoms/Navigasi";
-import { Button, Container } from "react-bootstrap";
+import { Button, Container, Dropdown } from "react-bootstrap";
 import DashboardAdmin from "./DashboardAdmin";
 import HistoryAdmin from "./HistoryAdmin";
 
@@ -22,8 +22,21 @@ function DashBoard() {
     <>
       <Navigasi />
       <Container>
-        <Button onClick={handleClickDashboard}>Dashboard Barang</Button>
-        <Button onClick={handleClickHistory}>History Pemesanan</Button>
+        <Dropdown className="mt-3">
+          <Dropdown.Toggle variant="success" id="dropdown-basic">
+            Pilih Component
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={handleClickDashboard}>
+              Dashboard Barang
+            </Dropdown.Item>
+            <Dropdown.Item onClick={handleClickHistory}>
+              History Pemesanan
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+
         {componentDashboard && <DashboardAdmin />}
         {componentHistory && <HistoryAdmin />}
       </Container>
