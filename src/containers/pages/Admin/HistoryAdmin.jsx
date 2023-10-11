@@ -11,6 +11,8 @@ function HistoryAdmin() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showEditKeterangan, setShowEditKeterangan] = useState(false);
   const [confirmationInput, setConfirmationInput] = useState("");
+  const [selectedCodePemesanan, setSelectedCodePemesanan] = useState(null);
+  const [showCodePemesananModal, setShowCodePemesananModal] = useState(false);
 
   const handleCloseEditKeterangan = () => setShowEditKeterangan(false);
   const handleShowEditKeterangan = (order) => {
@@ -57,7 +59,8 @@ function HistoryAdmin() {
     const selectedOrder = filteredOrders.find(
       (order) => order.codePesanan === orderCode
     );
-    setSelectedOrder(selectedOrder);
+    setSelectedCodePemesanan(selectedOrder);
+    setShowCodePemesananModal(true);
   };
 
   const updateOrderStatus = async () => {
@@ -138,6 +141,7 @@ function HistoryAdmin() {
                 >
                   {order.codePesanan}
                 </td>
+
                 <td
                   style={
                     order.transfer !== true
@@ -271,6 +275,87 @@ function HistoryAdmin() {
               Simpan
             </Button>
           </Modal.Footer>
+        </Modal>
+        <Modal
+          show={showCodePemesananModal}
+          onHide={() => setShowCodePemesananModal(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>CodePemesanan</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedCodePemesanan && (
+              <div>
+                <p>
+                  Waktu Pemesanan:{" "}
+                  <strong>
+                    {new Date(
+                      selectedCodePemesanan.timestamp * 1000
+                    ).toLocaleString()}
+                  </strong>
+                </p>
+                <p>
+                  Code Pemesanan:{" "}
+                  <strong>{selectedCodePemesanan.codePesanan}</strong>
+                </p>
+                <p>
+                  Alamat: <strong>{selectedCodePemesanan.address}</strong>
+                </p>
+                <p>
+                  Status Pengantaran:{" "}
+                  <strong>
+                    {selectedCodePemesanan.pengantaran
+                      ? "Sudah Diterima"
+                      : "Dalam Proses"}
+                  </strong>
+                </p>
+                <p>
+                  Status Pembayaran:{" "}
+                  <strong>
+                    {selectedCodePemesanan.transfer ? "Lunas" : "Belum Lunas"}
+                  </strong>
+                </p>
+
+                <hr className="solid" />
+
+                <div className="container">
+                  {selectedCodePemesanan.orderData.map((values, index) => (
+                    <div key={index} className="d-flex justify-content-between">
+                      <div>
+                        <p>
+                          <strong>{values.namaMenu}</strong>
+                          <br />
+                          {values.totalBarang} x {formatToIDR(values.hargaMenu)}
+                        </p>
+                      </div>
+                      <div className="d-flex align-items-end">
+                        <p>
+                          {formatToIDR(values.hargaMenu * values.totalBarang)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                  <hr className="solid" />
+
+                  <div className="d-flex justify-content-between">
+                    <p>
+                      <strong>Total Harga:</strong>
+                    </p>
+                    <p>
+                      {formatToIDR(
+                        selectedCodePemesanan.orderData.reduce(
+                          (total, values) =>
+                            total + values.hargaMenu * values.totalBarang,
+                          0
+                        )
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Modal.Body>
         </Modal>
       </div>
     </Container>
