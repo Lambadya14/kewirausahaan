@@ -122,6 +122,10 @@ function HistoryAdmin() {
     }
   };
 
+  const totalHargaFiltered = filteredOrders.reduce((total, order) => {
+    return total + order.totalHarga;
+  }, 0);
+
   return (
     <Container>
       <h1>List History Pemesanan CSS</h1>
@@ -187,6 +191,9 @@ function HistoryAdmin() {
           </Form.Select>
         </Form.Group>
       </Form>
+      <h4>
+        <strong>Total Harga:</strong> {formatToIDR(totalHargaFiltered)}
+      </h4>
       <div className="mt-3">
         <Table bordered hover>
           <thead>

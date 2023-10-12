@@ -114,12 +114,16 @@ function HistoryUser() {
               >
                 <div className="d-flex justify-content-between">
                   <h3>Struk Pemesanan</h3>
-                  <Button
-                    onClick={() => handleShowDeleteModal(orders[0].id)} // Show the delete confirmation modal
-                    variant="danger"
-                  >
-                    Batalkan Pesanan
-                  </Button>
+                  {orders[0].transfer === false ? (
+                    <Button
+                      onClick={() => handleShowDeleteModal(orders[0].id)} // Show the delete confirmation modal
+                      variant="danger"
+                    >
+                      Batalkan Pesanan
+                    </Button>
+                  ) : (
+                    ""
+                  )}
                   <Button
                     variant="secondary"
                     onClick={() => {
