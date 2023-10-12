@@ -18,6 +18,7 @@ import {
   uploadBytes,
 } from "firebase/storage";
 import { v4 } from "uuid";
+import { toast } from "react-toastify";
 
 function DashboardAdmin() {
   const [namaMenu, setNamaMenu] = useState("");
@@ -79,6 +80,7 @@ function DashboardAdmin() {
       namaIMG: namaImage,
       idMenu: idMenu,
     });
+    toast.success("Barang berhasil ditambahkan");
   };
 
   const handleDelete = async () => {
@@ -103,6 +105,7 @@ function DashboardAdmin() {
       }
       handleCloseDeleteModal();
     }
+    toast.success("Barang berhasil dihapus");
   };
 
   const handleEdit = (id, nama, harga, kuantitas, imgUpload) => {
@@ -129,6 +132,8 @@ function DashboardAdmin() {
     setHargaMenu("");
     setKuantitas("");
     setImageUpload(null);
+
+    toast.success("Barang berhasil diperbaharui");
   };
 
   const handleCancel = () => {
