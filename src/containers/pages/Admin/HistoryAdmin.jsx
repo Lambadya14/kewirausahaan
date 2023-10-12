@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { database } from "../../../config/firebase";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
-import { Button, Container, Form, Modal, Table } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Container,
+  Form,
+  Modal,
+  Row,
+  Table,
+} from "react-bootstrap";
 import { getAuth } from "firebase/auth";
 
 function HistoryAdmin() {
@@ -13,6 +21,9 @@ function HistoryAdmin() {
   const [confirmationInput, setConfirmationInput] = useState("");
   const [selectedCodePemesanan, setSelectedCodePemesanan] = useState(null);
   const [showCodePemesananModal, setShowCodePemesananModal] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all"); // Default to show all orders
 
   const handleCloseEditKeterangan = () => setShowEditKeterangan(false);
   const handleShowEditKeterangan = (order) => {
@@ -48,12 +59,43 @@ function HistoryAdmin() {
     }).format(number);
   };
 
-  const filteredOrders = val.filter((order) => {
-    return (
-      order.userId.toLowerCase().includes(uidFilter.toLowerCase()) &&
-      order.codePesanan.toLowerCase().includes(kodeFilter.toLowerCase())
-    );
-  });
+  const filteredOrders = val
+    .filter((order) => {
+      const timestamp = order.timestamp.seconds * 1000; // Convert timestamp to milliseconds
+      const orderDate = new Date(timestamp);
+
+      // Check if the order date is within the selected date range
+      const dateFilter =
+        (!startDate || orderDate >= new Date(startDate)) &&
+        (!endDate || orderDate <= new Date(endDate));
+
+      if (paymentStatusFilter === "success") {
+        return (
+          order.userId.toLowerCase().includes(uidFilter.toLowerCase()) &&
+          order.codePesanan.toLowerCase().includes(kodeFilter.toLowerCase()) &&
+          order.transfer === true &&
+          dateFilter
+        );
+      } else if (paymentStatusFilter === "not success") {
+        return (
+          order.userId.toLowerCase().includes(uidFilter.toLowerCase()) &&
+          order.codePesanan.toLowerCase().includes(kodeFilter.toLowerCase()) &&
+          order.transfer !== true &&
+          dateFilter
+        );
+      } else {
+        // Show all orders when "all" is selected
+        return (
+          order.userId.toLowerCase().includes(uidFilter.toLowerCase()) &&
+          order.codePesanan.toLowerCase().includes(kodeFilter.toLowerCase()) &&
+          dateFilter
+        );
+      }
+    })
+    .sort((a, b) => {
+      // Sort orders by timestamp in descending order (most recent to oldest)
+      return b.timestamp.seconds - a.timestamp.seconds;
+    });
 
   const handleOrderCodeClick = (orderCode) => {
     const selectedOrder = filteredOrders.find(
@@ -86,7 +128,9 @@ function HistoryAdmin() {
 
       <Form>
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Masukan UID:</Form.Label>
+          <Form.Label>
+            <b>Masukan UID:</b>
+          </Form.Label>
           <Form.Control
             type="text"
             value={uidFilter}
@@ -95,7 +139,9 @@ function HistoryAdmin() {
           />
         </Form.Group>
         <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Masukan Kode Pemesanan:</Form.Label>
+          <Form.Label>
+            <b>Masukan Kode Pemesanan:</b>
+          </Form.Label>
           <Form.Control
             type="text"
             value={kodeFilter}
@@ -103,11 +149,49 @@ function HistoryAdmin() {
             placeholder="Enter order code"
           />
         </Form.Group>
+        <Row className="mb-3">
+          <Form.Group as={Col}>
+            <Form.Label htmlFor="startDate">
+              <b>Start Date:</b>{" "}
+            </Form.Label>
+            <Form.Control
+              type="date"
+              id="startDate"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group as={Col}>
+            <Form.Label htmlFor="endDate">
+              <b>End Date:</b>{" "}
+            </Form.Label>
+            <Form.Control
+              type="date"
+              id="endDate"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </Form.Group>
+        </Row>
+        <Form.Group className="mb-3" controlId="paymentStatusFilter">
+          <Form.Label>
+            <b>Filter by Payment Status:</b>
+          </Form.Label>
+          <Form.Select
+            value={paymentStatusFilter}
+            onChange={(e) => setPaymentStatusFilter(e.target.value)}
+          >
+            <option value="all">All</option>
+            <option value="success">Successful Payment</option>
+            <option value="not success">Unsuccessful Payment</option>
+          </Form.Select>
+        </Form.Group>
       </Form>
-      <div>
+      <div className="mt-3">
         <Table bordered hover>
           <thead>
             <tr>
+              <th>Nama Pembeli</th>
               <th>UID Pembeli</th>
               <th>Kode Pembelian</th>
               <th>Waktu Pembelian</th>
@@ -129,10 +213,18 @@ function HistoryAdmin() {
                       : { background: "#B4FFC8" }
                   }
                 >
+                  {order.namaUser}
+                </td>
+                <td
+                  style={
+                    order.transfer !== true
+                      ? { background: "#FFB4B4" }
+                      : { background: "#B4FFC8" }
+                  }
+                >
                   {order.userId}
                 </td>
                 <td
-                  onClick={() => handleOrderCodeClick(order.codePesanan)}
                   style={
                     order.transfer !== true
                       ? { background: "#FFB4B4" }
@@ -149,7 +241,7 @@ function HistoryAdmin() {
                       : { background: "#B4FFC8" }
                   }
                 >
-                  {new Date(order.timestamp * 1000).toLocaleString()}
+                  {new Date(order.timestamp.seconds * 1000).toLocaleString()}
                 </td>
                 <td
                   style={
@@ -201,6 +293,11 @@ function HistoryAdmin() {
                 <td>
                   <Button onClick={() => handleShowEditKeterangan(order)}>
                     Update
+                  </Button>
+                  <Button
+                    onClick={() => handleOrderCodeClick(order.codePesanan)}
+                  >
+                    Details
                   </Button>
                 </td>
               </tr>

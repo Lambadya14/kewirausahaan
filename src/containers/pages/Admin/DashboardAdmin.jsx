@@ -132,6 +132,7 @@ function DashboardAdmin() {
   };
 
   const handleCancel = () => {
+    setShow(false);
     setNamaMenu("");
     setHargaMenu("");
     setKuantitas("");

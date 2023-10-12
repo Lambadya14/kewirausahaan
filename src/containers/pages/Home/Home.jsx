@@ -2,18 +2,13 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../../../components/atoms/Navigasi";
 
 import { Button, Container, Form, Modal } from "react-bootstrap";
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  Timestamp,
-} from "firebase/firestore";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 import { database } from "../../../config/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { v4 } from "uuid";
 import { HiOutlineMinus, HiOutlinePlus } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Home() {
   const [val, setVal] = useState([]);
@@ -28,10 +23,23 @@ function Home() {
   const navigate = useNavigate();
 
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleShow = () => {
+    if (!totalBarang && !totalHarga) {
+      toast.error("Pesan menu terlebih dahulu!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+    setShow(true);
+  };
 
   const value = collection(database, "daftarMenu");
-  const auth = getAuth();
 
   useEffect(() => {
     const getData = async () => {
@@ -94,22 +102,29 @@ function Home() {
   };
 
   const handleCheckout = async () => {
+    // Validasi alamat dan nomor telepon
+    if (!address || !phoneNumber) {
+      setIsButtonDisabled(false);
+      toast.error("Mohon isi data diri anda terlebih dahulu", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return; // Menghentikan eksekusi jika ada kesalahan
+    }
+
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         return navigate("/login");
       }
     });
-    const handleButtonClick = () => {
-      // Disable the button
-      setIsButtonDisabled(true);
 
-      // Enable the button after 5 seconds
-      setTimeout(() => {
-        setIsButtonDisabled(false);
-      }, 5000);
-    };
-    handleButtonClick();
     handleClose();
 
     const orderData = val
@@ -132,19 +147,35 @@ function Home() {
     const orderDoc = doc(ordersCollection);
 
     try {
-      const timestamp = Timestamp.now(); // Generate the current timestamp
-      await setDoc(orderDoc, {
-        userId: auth.currentUser.uid,
-        orderData,
-        totalBarang,
-        codePesanan,
-        totalHarga,
-        address, // Include the address in the order
-        phoneNumber, // Include the phone number in the order
-        timestamp, // Include the timestamp in the order
-        transfer: false,
-        pengantaran: false,
-      });
+      const timestamp = new Date(); // Generate the current timestamp
+      if (totalBarang !== 0) {
+        await setDoc(orderDoc, {
+          namaUser: auth.currentUser.displayName,
+          userId: auth.currentUser.uid,
+          orderData,
+          totalBarang,
+          codePesanan,
+          totalHarga,
+          address, // Include the address in the order
+          phoneNumber, // Include the phone number in the order
+          timestamp, // Include the timestamp in the order
+          transfer: false,
+          pengantaran: false,
+        });
+        toast.success(
+          "Pesanan anda sudah kami terima. Mohon cek History User",
+          {
+            position: "bottom-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          }
+        );
+      }
 
       setQuantities({});
       setTotalBarang(0);
@@ -154,8 +185,6 @@ function Home() {
     } catch (error) {
       console.error("Error placing order:", error);
     }
-
-    // Close the modal after checkout
   };
 
   const generateOrderCode = () => {
@@ -215,13 +244,14 @@ function Home() {
                   {values.kuantitas ? (
                     <p style={{ color: "white" }}>Tersedia</p>
                   ) : (
-                    <p style={{ color: "white" }}>Stok Habis</p>
+                    <p style={{ color: "#ff8080" }}>Stok Habis</p>
                   )}
                 </div>
               </div>
 
               <div className="d-flex align-items-end justify-content-end">
                 <Button
+                  disabled={values.kuantitas > 0 ? false : true}
                   className="d-flex align-items-center "
                   onClick={() => decreaseQuantity(values.id)}
                   style={{
@@ -257,6 +287,7 @@ function Home() {
                   }}
                 />
                 <Button
+                  disabled={values.kuantitas > 0 ? false : true}
                   onClick={() => increaseQuantity(values.id)}
                   className="d-flex align-items-center"
                   style={{
@@ -277,7 +308,7 @@ function Home() {
       </Container>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
+          <Modal.Title>Crispy, Sweet and Sip</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>

@@ -134,7 +134,7 @@ function HistoryUser() {
                       openWhatsApp();
                     }}
                   >
-                    Contact Admin: Salsa
+                    Contact Admin: Sela
                   </Button>
                 </div>
                 <div>
@@ -142,6 +142,14 @@ function HistoryUser() {
                     Waktu Pemesanan:
                     <strong>
                       <p>{new Date(timestamp * 1000).toLocaleString()}</p>
+                    </strong>
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    Nama Pembeli:
+                    <strong>
+                      <p>{orders[0].namaUser}</p>
                     </strong>
                   </p>
                 </div>
