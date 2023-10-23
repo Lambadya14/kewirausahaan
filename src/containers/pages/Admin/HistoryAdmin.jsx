@@ -311,7 +311,6 @@ function HistoryAdmin() {
             ))}
           </tbody>
         </Table>
-
         <Modal
           show={showEditKeterangan}
           onHide={handleCloseEditKeterangan}

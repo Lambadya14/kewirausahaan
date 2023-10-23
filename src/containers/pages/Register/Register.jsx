@@ -43,13 +43,12 @@ function Register() {
         displayName: value.name,
       });
 
-      // Add user data to Firestore
-      // const userDocRef = await addDoc(collection(db, "users"), {
-      //   name: value.name,
-      //   email: value.email,
-      //   roleAs: "user",
-      // });
-
+      const userDocRef = await addDoc(collection(db, "users"), {
+        name: value.name,
+        email: value.email,
+        roleAs: "user",
+      });
+      userDocRef();
       navigate("/");
     } catch (error) {
       const errorCode = error.code;

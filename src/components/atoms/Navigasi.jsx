@@ -73,31 +73,41 @@ function Navigasi() {
 
   return (
     <Navbar
-      style={{ backgroundColor: "#FF9853", borderColor: "#FF9853" }}
+      style={{ backgroundColor: "#003049", borderColor: "#003049" }}
+      // bg="dark"
       expand="lg"
+      variant="dark"
     >
       <Container fluid>
-        <Navbar.Brand as={Link} to="/">
+        <Navbar.Brand as={Link} to="/" style={{ color: "white" }}>
           CSS: Crispy, Sweet & Sip
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="navbarScroll" />
-        <Navbar.Collapse id="navbarScroll">
+        <Navbar.Toggle />
+        <Navbar.Collapse id="navbarScroll" style={{ color: "white" }}>
           {isLoggedIn ? (
             <>
               <Nav
                 className="me-auto my-2 my-lg-0"
-                style={{ maxHeight: "100px" }}
+                style={{ maxHeight: "100px", color: "white" }}
                 navbarScroll
               >
-                <Nav.Link as={Link} to="/">
+                <Nav.Link as={Link} to="/" style={{ color: "white" }}>
                   Home
                 </Nav.Link>
                 {roleAs === "admin" && (
-                  <Nav.Link as={Link} to="/dashboard">
+                  <Nav.Link
+                    as={Link}
+                    to="/dashboard"
+                    style={{ color: "white" }}
+                  >
                     Dashboard Admin
                   </Nav.Link>
                 )}
-                <Nav.Link as={Link} to="/history-user">
+                <Nav.Link
+                  as={Link}
+                  to="/history-user"
+                  style={{ color: "white" }}
+                >
                   History User
                 </Nav.Link>
                 {/* <Nav.Link as={Link} to="/profile">
@@ -115,7 +125,11 @@ function Navigasi() {
             </>
           ) : (
             <>
-              <Nav className="me-auto">
+              <Nav
+                className="me-auto my-2 my-lg-0"
+                style={{ maxHeight: "100px" }}
+                navbarScroll
+              >
                 <Nav.Link as={Link} to="/">
                   Home
                 </Nav.Link>

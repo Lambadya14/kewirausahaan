@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { database, storage } from "../../../config/firebase";
 import {
   addDoc,
@@ -31,6 +31,7 @@ function DashboardAdmin() {
   const [confirmationInput, setConfirmationInput] = useState("");
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+   const scrollRef = useRef(null);
 
   const value = collection(database, "daftarMenu");
 
@@ -109,6 +110,8 @@ function DashboardAdmin() {
   };
 
   const handleEdit = (id, nama, harga, kuantitas, imgUpload) => {
+     scrollRef.current.scrollIntoView({ behavior: "smooth" });
+
     setNamaMenu(nama);
     setHargaMenu(harga);
     setKuantitas(kuantitas);
@@ -154,7 +157,7 @@ function DashboardAdmin() {
 
   return (
     <>
-      <Container>
+      <Container ref={scrollRef}>
         <h1>Tambah Menu CSS</h1>
         <div>
           <Form>

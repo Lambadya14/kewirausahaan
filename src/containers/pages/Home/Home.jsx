@@ -2,7 +2,15 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../../../components/atoms/Navigasi";
 
 import { Button, Container, Form, Modal } from "react-bootstrap";
-import { collection, getDocs, doc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  getDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import { database } from "../../../config/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { v4 } from "uuid";
@@ -12,6 +20,7 @@ import { toast } from "react-toastify";
 
 function Home() {
   const [val, setVal] = useState([]);
+  const [valOrders, setValOrders] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [totalBarang, setTotalBarang] = useState(0);
   const [totalHarga, setTotalHarga] = useState(0);
@@ -40,12 +49,17 @@ function Home() {
   };
 
   const value = collection(database, "daftarMenu");
+  const valueOrders = collection(database, "orders");
 
   useEffect(() => {
     const getData = async () => {
       try {
         const dbVal = await getDocs(value);
+        const dbOrders = await getDocs(valueOrders);
         setVal(dbVal.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        setValOrders(
+          dbOrders.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+        );
       } catch (error) {
         console.error("Error fetching data from Firebase:", error);
       }
@@ -201,6 +215,32 @@ function Home() {
     }).format(number);
   }
 
+  // Fungsi untuk menghitung total pesanan untuk setiap menu
+  const calculateMenuTotals = () => {
+    const menuTotals = {};
+
+    valOrders.forEach((order) => {
+      order.orderData.forEach((menu) => {
+        const { id, totalBarang } = menu;
+        if (menuTotals[id]) {
+          menuTotals[id] += totalBarang;
+        } else {
+          menuTotals[id] = totalBarang;
+        }
+      });
+    });
+
+    return menuTotals;
+  };
+
+  const isCheckoutButtonVisible = () => {
+    for (const menu of val) {
+      if (menu.kuantitas > 0) {
+        return true;
+      }
+    }
+    return false;
+  };
   return (
     <>
       <Navbar />
@@ -210,100 +250,129 @@ function Home() {
           className="container"
           style={{ maxWidth: "700px", paddingBottom: "90px" }}
         >
-          {val.map((values) => (
-            <div
-              className={
-                windowWidth < 321
-                  ? "d-grid justify-content-between bg-body mb-3"
-                  : "d-flex justify-content-between bg-body mb-3"
-              }
-              style={{
-                borderRadius: "16px",
+          {val.map((values) => {
+            const menuTotals = calculateMenuTotals();
+            const isBestSelling = menuTotals[values.id] > 20;
 
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center",
-                backgroundSize: "cover",
-                placeItems: "bottom",
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5) 100%, rgba(0, 0, 0, 0)100%),url(${values.fotoMenu})`,
-              }}
-              key={values.id}
-            >
+            return (
               <div
+                className={
+                  windowWidth < 321
+                    ? "d-grid justify-content-between bg-body mb-3"
+                    : "d-flex justify-content-between bg-body mb-3"
+                }
                 style={{
-                  width: "300px",
+                  borderRadius: "16px",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
+                  placeItems: "bottom",
+                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5) 100%, rgba(0, 0, 0, 0)100%),url(${values.fotoMenu})`,
                 }}
-                className="d-flex flex-row mt-3 ms-2"
+                key={values.id}
               >
-                <div>
-                  <b>
-                    <p style={{ color: "white" }}>{values.namaMenu}</p>
-                  </b>
-                  <p style={{ color: "white" }}>
-                    {formatToIDR(values.hargaMenu)}
-                  </p>
-                  {values.kuantitas ? (
-                    <p style={{ color: "white" }}>Tersedia</p>
-                  ) : (
-                    <p style={{ color: "#ff8080" }}>Stok Habis</p>
+                <div
+                  style={{
+                    width: "300px",
+                  }}
+                  className="d-flex flex-row mt-3 ms-2"
+                >
+                  <div>
+                    <b>
+                      <p style={{ color: "white" }}>{values.namaMenu}</p>
+                    </b>
+                    <p style={{ color: "white" }}>
+                      {formatToIDR(values.hargaMenu)}
+                    </p>
+                    {values.kuantitas ? (
+                      <p style={{ color: "white" }}>Tersedia</p>
+                    ) : (
+                      <p style={{ color: "#ff8080" }}>
+                        <b>Stok Habis</b>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="d-grid">
+                  {isBestSelling && (
+                    <div className="d-flex justify-content-end">
+                      <p
+                        style={{
+                          color: "white",
+                          background: "#FCBF49",
+                          borderBottomRightRadius: "0px",
+                          borderBottomLeftRadius: "15px",
+                          borderTopRightRadius: "15px",
+                          borderTopLeftRadius: "0px",
+                          height: "35px",
+                          paddingTop: "5px",
+                          paddingBottom: "5px",
+                          paddingLeft: "10px",
+                          paddingRight: "10px",
+                        }}
+                      >
+                        Best Selling Snack
+                      </p>
+                    </div>
                   )}
+                  <div className="d-flex align-items-end justify-content-end">
+                    <Button
+                      disabled={values.kuantitas > 0 ? false : true}
+                      className="d-flex align-items-center "
+                      onClick={() => decreaseQuantity(values.id)}
+                      style={{
+                        borderBottomRightRadius: "0px",
+                        borderBottomLeftRadius: "0px",
+                        borderTopRightRadius: "0px",
+                        borderTopLeftRadius: "15px",
+                        backgroundColor: "#FCBF49",
+                        borderColor: "#FCBF49",
+                      }}
+                    >
+                      <HiOutlineMinus style={{ fontSize: "1.5rem" }} />
+                    </Button>
+                    <Form.Control
+                      className="rounded-0"
+                      style={{
+                        textAlign: "center",
+                        borderColor: "white",
+                      }}
+                      disabled={values.kuantitas > 0 ? false : true}
+                      type="number"
+                      value={quantities[values.id] || 0}
+                      onChange={(e) => {
+                        const newValue = parseInt(e.target.value);
+
+                        if (newValue >= 1) {
+                          setQuantities({
+                            ...quantities,
+                            [values.id]: newValue,
+                          });
+                          const delta = newValue - (quantities[values.id] || 0);
+                          updateTotalBarang(values.id, delta);
+                        }
+                      }}
+                    />
+                    <Button
+                      disabled={values.kuantitas > 0 ? false : true}
+                      onClick={() => increaseQuantity(values.id)}
+                      className="d-flex align-items-center"
+                      style={{
+                        borderBottomRightRadius: "15px",
+                        borderBottomLeftRadius: "0px",
+                        borderTopRightRadius: "0px",
+                        borderTopLeftRadius: "0px",
+                        backgroundColor: "#FCBF49",
+                        borderColor: "#FCBF49",
+                      }}
+                    >
+                      <HiOutlinePlus style={{ fontSize: "1.5rem" }} />
+                    </Button>
+                  </div>
                 </div>
               </div>
-
-              <div className="d-flex align-items-end justify-content-end">
-                <Button
-                  disabled={values.kuantitas > 0 ? false : true}
-                  className="d-flex align-items-center "
-                  onClick={() => decreaseQuantity(values.id)}
-                  style={{
-                    borderBottomRightRadius: "0px",
-                    borderBottomLeftRadius: "0px",
-                    borderTopRightRadius: "0px",
-                    borderTopLeftRadius: "15px",
-                    backgroundColor: "#FF9853",
-                    borderColor: "#FF9853",
-                  }}
-                >
-                  <HiOutlineMinus style={{ fontSize: "1.5rem" }} />
-                </Button>
-                <Form.Control
-                  className="rounded-0"
-                  style={{
-                    // width: "100%",
-                    // maxWidth: "80px", // Set the maximum width
-                    textAlign: "center",
-                    borderColor: "white",
-                  }}
-                  type="number"
-                  value={quantities[values.id] || 0}
-                  onChange={(e) => {
-                    const newValue = parseInt(e.target.value);
-
-                    // Ensure the new value is greater than or equal to 1
-                    if (newValue >= 1) {
-                      setQuantities({ ...quantities, [values.id]: newValue });
-                      const delta = newValue - (quantities[values.id] || 0);
-                      updateTotalBarang(values.id, delta);
-                    }
-                  }}
-                />
-                <Button
-                  disabled={values.kuantitas > 0 ? false : true}
-                  onClick={() => increaseQuantity(values.id)}
-                  className="d-flex align-items-center"
-                  style={{
-                    borderBottomRightRadius: "15px",
-                    borderBottomLeftRadius: "0px",
-                    borderTopRightRadius: "0px",
-                    borderTopLeftRadius: "0px",
-                    backgroundColor: "#FF9853",
-                    borderColor: "#FF9853",
-                  }}
-                >
-                  <HiOutlinePlus style={{ fontSize: "1.5rem" }} />
-                </Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Container>
       <Modal show={show} onHide={handleClose}>
@@ -346,23 +415,25 @@ function Home() {
           </Button>
         </Modal.Footer>
       </Modal>
-      <div
-        style={{ bottom: 0 }}
-        className="d-flex position-fixed container-fluid border-top bg-light justify-content-between "
-      >
-        <div>
-          <h2>Total Barang: {totalBarang}</h2>
-          <h2>Total Harga: {formatToIDR(totalHarga)}</h2>
-        </div>
-        <Button
-          className="rounded-0"
-          onClick={handleShow}
-          disabled={totalBarang ? false : true}
-          style={{ backgroundColor: "#FF9853", borderColor: "#FF9853" }}
+      {isCheckoutButtonVisible() && (
+        <div
+          style={{ bottom: 0 }}
+          className="d-flex position-fixed container-fluid border-top bg-light justify-content-between "
         >
-          Checkout
-        </Button>
-      </div>
+          <div>
+            <h2>Total Barang: {totalBarang}</h2>
+            <h2>Total Harga: {formatToIDR(totalHarga)}</h2>
+          </div>
+          <Button
+            className="rounded-0"
+            onClick={handleShow}
+            disabled={totalBarang ? false : true}
+            style={{ backgroundColor: "#FCBF49", borderColor: "#FCBF49" }}
+          >
+            Checkout
+          </Button>
+        </div>
+      )}
     </>
   );
 }
