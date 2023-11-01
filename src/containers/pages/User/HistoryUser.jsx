@@ -115,7 +115,7 @@ function HistoryUser() {
                 <div className="d-flex justify-content-between">
                   <h3>Struk Pemesanan</h3>
                   {orders[0].transfer === false ? (
-                    <div>
+                    <>
                       <Button
                         onClick={() => handleShowDeleteModal(orders[0].id)} // Show the delete confirmation modal
                         variant="danger"
@@ -123,7 +123,6 @@ function HistoryUser() {
                         Batalkan Pesanan
                       </Button>
                       <Button
-                        className="mx-2"
                         variant="secondary"
                         onClick={() => {
                           const openWhatsApp = () => {
@@ -140,7 +139,7 @@ function HistoryUser() {
                       >
                         Contact Admin: Sela
                       </Button>
-                    </div>
+                    </>
                   ) : (
                     ""
                   )}
