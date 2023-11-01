@@ -115,31 +115,35 @@ function HistoryUser() {
                 <div className="d-flex justify-content-between">
                   <h3>Struk Pemesanan</h3>
                   {orders[0].transfer === false ? (
-                    <Button
-                      onClick={() => handleShowDeleteModal(orders[0].id)} // Show the delete confirmation modal
-                      variant="danger"
-                    >
-                      Batalkan Pesanan
-                    </Button>
+                    <div>
+                      <Button
+                        onClick={() => handleShowDeleteModal(orders[0].id)} // Show the delete confirmation modal
+                        variant="danger"
+                      >
+                        Batalkan Pesanan
+                      </Button>
+                      <Button
+                        className="mx-2"
+                        variant="secondary"
+                        onClick={() => {
+                          const openWhatsApp = () => {
+                            const message = `Halo admin, ini kode pemesanan saya:\n${orders[0].codePesanan}`;
+                            const phoneNumber =
+                              process.env.REACT_APP_phoneNumber; // Replace with the recipient's phone number
+                            const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+                              message
+                            )}`;
+                            window.open(whatsappURL, "_blank");
+                          };
+                          openWhatsApp();
+                        }}
+                      >
+                        Contact Admin: Sela
+                      </Button>
+                    </div>
                   ) : (
                     ""
                   )}
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      const openWhatsApp = () => {
-                        const message = `Halo admin, ini kode pemesanan saya:\n${orders[0].codePesanan}`;
-                        const phoneNumber = process.env.REACT_APP_phoneNumber; // Replace with the recipient's phone number
-                        const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
-                          message
-                        )}`;
-                        window.open(whatsappURL, "_blank");
-                      };
-                      openWhatsApp();
-                    }}
-                  >
-                    Contact Admin: Sela
-                  </Button>
                 </div>
                 <div>
                   <p>

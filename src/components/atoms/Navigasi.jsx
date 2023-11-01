@@ -11,7 +11,6 @@ import { Button, Container } from "react-bootstrap";
 
 function Navigasi() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
   const [roleAs, setRoleAs] = useState("");
   const navigate = useNavigate();
   const value = collection(database, "users");
@@ -23,10 +22,8 @@ function Navigasi() {
       (user) => {
         if (user) {
           setIsLoggedIn(true);
-          setUserName(user.displayName);
         } else {
           setIsLoggedIn(false);
-          setUserName("");
         }
 
         getData(user);
@@ -103,16 +100,25 @@ function Navigasi() {
                     Dashboard Admin
                   </Nav.Link>
                 )}
-                <Nav.Link
-                  as={Link}
-                  to="/history-user"
-                  style={{ color: "white" }}
-                >
-                  History User
-                </Nav.Link>
-                {/* <Nav.Link as={Link} to="/profile">
-                  Signed in as: {userName}
-                </Nav.Link> */}
+                {roleAs === "user" && (
+                  <>
+                    {" "}
+                    <Nav.Link
+                      as={Link}
+                      style={{ color: "white" }}
+                      to="/profile"
+                    >
+                      Profile
+                    </Nav.Link>
+                    <Nav.Link
+                      as={Link}
+                      to="/history-user"
+                      style={{ color: "white" }}
+                    >
+                      History User
+                    </Nav.Link>
+                  </>
+                )}
               </Nav>
               <Button
                 onClick={handleSignOut}

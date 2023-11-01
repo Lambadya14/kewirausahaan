@@ -9,6 +9,7 @@ import DashBoard from "./containers/pages/Admin/DashBoard";
 import HistoryUser from "./containers/pages/User/HistoryUser";
 import AdminProtected from "./components/molecules/AdminProtected";
 import { ToastContainer } from "react-toastify";
+import Profile from "./containers/pages/Profile/Profile";
 
 function App() {
   return (
@@ -45,6 +46,14 @@ function App() {
           element={
             <Protected>
               <HistoryUser />
+            </Protected>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Protected>
+              <Profile />
             </Protected>
           }
         />

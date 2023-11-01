@@ -252,7 +252,7 @@ function Home() {
         >
           {val.map((values) => {
             const menuTotals = calculateMenuTotals();
-            const isBestSelling = menuTotals[values.id] > 20;
+            const isBestSelling = menuTotals[values.id] > 50;
 
             return (
               <div
@@ -311,7 +311,7 @@ function Home() {
                           paddingRight: "10px",
                         }}
                       >
-                        Best Selling Snack
+                        Best Seller
                       </p>
                     </div>
                   )}

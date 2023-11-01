@@ -24,6 +24,7 @@ function HistoryAdmin() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all"); // Default to show all orders
+  const [namaMenuTotalBarangMap, setNamaMenuTotalBarangMap] = useState({});
 
   const handleCloseEditKeterangan = () => setShowEditKeterangan(false);
   const handleShowEditKeterangan = (order) => {
@@ -44,12 +45,70 @@ function HistoryAdmin() {
         }));
 
         setVal(userOrders);
+
+        // Calculate and store namaMenuTotalBarangMap based on paymentStatusFilter
+        const calculatedNamaMenuTotalBarangMap = logNamaMenuTotalBarang(
+          userOrders,
+          paymentStatusFilter
+        );
+
+        // Convert the sorted array back to a map
+        const sortedNamaMenuTotalBarangMap =
+          calculatedNamaMenuTotalBarangMap.reduce(
+            (acc, { namaMenu, totalBarang }) => {
+              acc[namaMenu] = totalBarang;
+              return acc;
+            },
+            {}
+          );
+
+        setNamaMenuTotalBarangMap(sortedNamaMenuTotalBarangMap);
       } catch (error) {
         console.error("Error fetching data from Firebase:", error);
       }
     };
     getData();
-  }, [auth]);
+  }, [auth, paymentStatusFilter]);
+
+  // Function to calculate and log the totalBarang for each namaMenu based on paymentStatusFilter and sort it in descending order
+  const logNamaMenuTotalBarang = (userOrders, paymentStatusFilter) => {
+    const namaMenuTotalBarangMap = {};
+
+    userOrders.forEach((order) => {
+      if (
+        paymentStatusFilter === "all" ||
+        (paymentStatusFilter === "success" && order.transfer === true) ||
+        (paymentStatusFilter === "not success" && order.transfer !== true)
+      ) {
+        if (order.orderData) {
+          order.orderData.forEach((item) => {
+            const { namaMenu, totalBarang } = item;
+
+            // Initialize the map entry for namaMenu if not exists
+            if (!namaMenuTotalBarangMap[namaMenu]) {
+              namaMenuTotalBarangMap[namaMenu] = 0;
+            }
+
+            // Add totalBarang to the existing total for namaMenu
+            namaMenuTotalBarangMap[namaMenu] += totalBarang;
+          });
+        }
+      }
+    });
+
+    // Convert the map to an array of objects
+    const namaMenuTotalBarangArray = Object.entries(namaMenuTotalBarangMap).map(
+      ([namaMenu, totalBarang]) => ({
+        namaMenu,
+        totalBarang,
+      })
+    );
+
+    // Sort the array in descending order based on totalBarang
+    namaMenuTotalBarangArray.sort((a, b) => b.totalBarang - a.totalBarang);
+
+    return namaMenuTotalBarangArray;
+  };
 
   const formatToIDR = (number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -194,6 +253,19 @@ function HistoryAdmin() {
       <h4>
         <strong>Total Harga:</strong> {formatToIDR(totalHargaFiltered)}
       </h4>
+      <hr />
+      <h4>
+        <strong>Menu:</strong>
+      </h4>
+      {Object.entries(namaMenuTotalBarangMap).map(([namaMenu, totalBarang]) => (
+        <ul>
+          <li style={{ listStyle: "none" }} key={namaMenu}>
+            <strong>{namaMenu}:</strong> {totalBarang} stok
+          </li>
+        </ul>
+      ))}
+      <hr />
+
       <div className="mt-3">
         <Table bordered hover>
           <thead>
