@@ -44,12 +44,37 @@ function HistoryAdmin() {
           id: doc.id,
         }));
 
-        setVal(userOrders);
+        // Filter orders based on paymentStatusFilter
+        const filteredOrders = userOrders.filter((order) => {
+          if (paymentStatusFilter === "success") {
+            return order.transfer === true;
+          } else if (paymentStatusFilter === "not success") {
+            return order.transfer !== true;
+          }
+          return true; // "all" selected
+        });
 
-        // Calculate and store namaMenuTotalBarangMap based on paymentStatusFilter
+        // Filter orders based on date range
+        const startDateTimestamp = startDate
+          ? new Date(startDate).getTime()
+          : 0;
+        const endDateTimestamp = endDate
+          ? new Date(endDate).getTime()
+          : Infinity;
+
+        const filteredOrdersWithinDateRange = filteredOrders.filter((order) => {
+          const orderTimestamp = order.timestamp.seconds * 1000;
+          return (
+            orderTimestamp >= startDateTimestamp &&
+            orderTimestamp <= endDateTimestamp
+          );
+        });
+
+        setVal(filteredOrdersWithinDateRange);
+
+        // Calculate and store namaMenuTotalBarangMap based on the filtered orders
         const calculatedNamaMenuTotalBarangMap = logNamaMenuTotalBarang(
-          userOrders,
-          paymentStatusFilter
+          filteredOrdersWithinDateRange
         );
 
         // Convert the sorted array back to a map
@@ -67,32 +92,27 @@ function HistoryAdmin() {
         console.error("Error fetching data from Firebase:", error);
       }
     };
-    getData();
-  }, [auth, paymentStatusFilter]);
 
-  // Function to calculate and log the totalBarang for each namaMenu based on paymentStatusFilter and sort it in descending order
-  const logNamaMenuTotalBarang = (userOrders, paymentStatusFilter) => {
+    getData();
+  }, [auth, paymentStatusFilter, startDate, endDate]);
+
+  // Function to calculate and log the totalBarang for each namaMenu
+  const logNamaMenuTotalBarang = (userOrders) => {
     const namaMenuTotalBarangMap = {};
 
     userOrders.forEach((order) => {
-      if (
-        paymentStatusFilter === "all" ||
-        (paymentStatusFilter === "success" && order.transfer === true) ||
-        (paymentStatusFilter === "not success" && order.transfer !== true)
-      ) {
-        if (order.orderData) {
-          order.orderData.forEach((item) => {
-            const { namaMenu, totalBarang } = item;
+      if (order.orderData) {
+        order.orderData.forEach((item) => {
+          const { namaMenu, totalBarang } = item;
 
-            // Initialize the map entry for namaMenu if not exists
-            if (!namaMenuTotalBarangMap[namaMenu]) {
-              namaMenuTotalBarangMap[namaMenu] = 0;
-            }
+          // Initialize the map entry for namaMenu if not exists
+          if (!namaMenuTotalBarangMap[namaMenu]) {
+            namaMenuTotalBarangMap[namaMenu] = 0;
+          }
 
-            // Add totalBarang to the existing total for namaMenu
-            namaMenuTotalBarangMap[namaMenu] += totalBarang;
-          });
-        }
+          // Add totalBarang to the existing total for namaMenu
+          namaMenuTotalBarangMap[namaMenu] += totalBarang;
+        });
       }
     });
 
